@@ -1,0 +1,251 @@
+
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+
+import javax.swing.JFrame;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+
+/**
+ *
+ * @author samuel
+ */
+public class Libreria extends JFrame implements ActionListener {
+
+  private static final int MAX_LIBROS = 50; // Número máximo de libros
+    private static final int MAX_USUARIOS = 50; // Número máximo de usuarios
+
+    private String[] libros = new String[MAX_LIBROS];
+    private String[] autores = new String[MAX_LIBROS];
+    private boolean[] prestado = new boolean[MAX_LIBROS];
+    private String[] usuarios = new String[MAX_USUARIOS];
+    private int[] librosPrestadosPorUsuario = new int[MAX_USUARIOS];
+    private int numLibros = 0;
+    private int numUsuarios = 0;
+    private int indiceUsuario =0;
+
+    private JPanel panelPrincipal;
+    private JButton btnAgregarLibro;
+    private JButton btnAgregarUsuario;
+    private JButton btnMostrarLibros;
+    private JButton btnPrestarLibro;
+    private JButton btnDevolverLibro;
+    private JButton btnSalir;
+
+    public Libreria() {
+        super("Biblioteca");
+
+        // Inicializar la interfaz gráfica
+        initGUI();
+
+        // Agregar eventos a los botones
+        btnAgregarLibro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                agregarLibro();
+            }
+        });
+
+        btnAgregarUsuario.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                agregarUsuario();
+            }
+        });
+
+        btnMostrarLibros.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mostrarLibros();
+            }
+        });
+
+        btnPrestarLibro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                prestarLibro();
+            }
+        });
+
+        btnDevolverLibro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                devolverLibro();
+            }
+        });
+
+        btnSalir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                salir();
+            }
+        });
+    }
+
+    private void initGUI() {
+        // Crear el panel principal
+        panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(new GridLayout(6, 1));
+
+        // Agregar los botones al panel principal
+        btnAgregarLibro = new JButton("Agregar libro");
+        panelPrincipal.add(btnAgregarLibro);
+
+        btnAgregarUsuario = new JButton("Agregar usuario");
+        panelPrincipal.add(btnAgregarUsuario);
+
+        btnMostrarLibros = new JButton("Mostrar libros");
+        panelPrincipal.add(btnMostrarLibros);
+
+        btnPrestarLibro = new JButton("Prestar libro");
+        panelPrincipal.add(btnPrestarLibro);
+
+        btnDevolverLibro = new JButton("Devolver libro");
+        panelPrincipal.add(btnDevolverLibro);
+
+        btnSalir = new JButton("Salir");
+        panelPrincipal.add(btnSalir);
+
+        // Agregar el panel principal al JFrame
+        this.add(panelPrincipal);
+
+        // Configurar el JFrame
+        this.setSize(800, 600);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setVisible(true);
+    }
+
+    private void agregarLibro() {
+        // Solicitar al usuario el título del libro
+        String titulo = JOptionPane.showInputDialog("Introduce el título del libro:");
+
+        // Solicitar al usuario el autor del libro
+        String autor = JOptionPane.showInputDialog("Introduce el autor del libro:");
+
+        // Almacenar el título y el autor en los arrays
+        libros[numLibros] = titulo;
+        autores[numLibros] = autor;
+        prestado[numLibros] = false;
+
+        // Incrementar el valor de numLibros
+        numLibros++;
+
+        // Mostrar un mensaje de confirmación
+        JOptionPane.showMessageDialog(null, "Libro agregado correctamente");
+    }
+
+    private void agregarUsuario() {
+        // Solicitar al usuario el nombre del usuario
+        String nombre = JOptionPane.showInputDialog("Introduce el nombre del usuario:");
+
+        // Almacenar el nombre en el array
+        usuarios[numUsuarios] = nombre;
+
+        // Incrementar el valor de numUsuarios
+        numUsuarios++;
+
+        // Mostrar un mensaje de confirmación
+        JOptionPane.showMessageDialog(null, "Usuario agregado correctamente");
+    }
+
+    private void mostrarLibros() {
+         // Mostrar una lista con los títulos de todos los libros
+        String mensaje = "";
+        for (int i = 0; i < numLibros; i++) {
+            mensaje += "- " + libros[i] + " (" + autores[i] + ")\n";
+            if (prestado[i]) {
+                mensaje += "    Prestado\n";
+            } else {
+                mensaje += "    Disponible\n";
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, mensaje);
+    }
+
+    private void prestarLibro() {
+        // Solicitar al usuario el título del libro que desea prestar
+        String titulo = JOptionPane.showInputDialog("Introduce el título del libro que deseas prestar:");
+
+        // Buscar el libro en el array
+        int indiceLibro = buscarLibro(titulo);
+
+        // Si el libro está disponible
+        if (indiceLibro != -1 && !prestado[indiceLibro]) {
+            // Marcar el libro como prestado
+            prestado[indiceLibro] = true;
+
+            // Incrementar el contador de libros prestados para el usuario
+            librosPrestadosPorUsuario[indiceUsuario]++;
+
+            // Mostrar un mensaje de confirmación
+            JOptionPane.showMessageDialog(null, "Libro prestado correctamente");
+        } else {
+            // Mostrar un mensaje de error
+            JOptionPane.showMessageDialog(null, "El libro no está disponible");
+        }
+    }
+
+    private void devolverLibro() {
+        // Solicitar al usuario el título del libro que desea devolver
+        String titulo = JOptionPane.showInputDialog("Introduce el título del libro que deseas devolver:");
+
+        // Buscar el libro en el array
+        int indiceLibro = buscarLibro(titulo);
+
+        // Si el libro está prestado
+        if (indiceLibro != -1 && prestado[indiceLibro]) {
+            // Marcar el libro como disponible
+            prestado[indiceLibro] = false;
+
+            // Decrementar el contador de libros prestados para el usuario
+            librosPrestadosPorUsuario[indiceUsuario]--;
+
+            // Mostrar un mensaje de confirmación
+            JOptionPane.showMessageDialog(null, "Libro devuelto correctamente");
+        } else {
+            // Mostrar un mensaje de error
+            JOptionPane.showMessageDialog(null, "El libro no está prestado");
+        }
+    }
+
+    private void salir() {
+        // Mostrar un mensaje de despedida
+        JOptionPane.showMessageDialog(null, "¡Hasta pronto!");
+
+        // Cerrar la aplicación
+        System.exit(0);
+    }
+
+    private int buscarLibro(String titulo) {
+        // Buscar el libro en el array
+        for (int i = 0; i < numLibros; i++) {
+            if (libros[i].equals(titulo)) {
+                return i;
+            }
+        }
+
+        // No se encontró el libro
+        return -1;
+    }
+      public static void main(String[] args) {
+        new Libreria();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+}
+
+
